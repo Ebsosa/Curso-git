@@ -14,6 +14,7 @@ const getPosts = async (user) => {
     return posts;
 }
 
+
 const getCommentsForEachPost = async (posts) => {
 const res = await Promise.all(posts.map(post =>
 fetch(`${url}/comments?postId=${post.id}&_Limit=2`)
@@ -22,7 +23,22 @@ const postComments = await Promise.all(res.map(r => r.json()));
 
 postComments.forEach((comments, i) => posts[i].comments = comments);
 }
-
+const renderHtml = (user, post) => {
+    const content= document.getElementById('content');
+    content.innerHTML += `<h3>Posts del usuario ${user.email}</h3>`;
+    
+    post.forEach( post => {
+    content.innerHTML += `
+    <div class="post">
+    <h4>${post.title}</h4>
+    <p>${post.body}</p>
+    <br>
+    ${post.comments.map(c => `<p><span>${c.email}:</span>${c.body}</p>`).join('')}
+    </div>
+    `;
+    } )
+    
+    }
    
 const getslogContent = async () => {  
         try {
@@ -30,8 +46,7 @@ const getslogContent = async () => {
         const post = await getPosts(user);
         await getCommentsForEachPost(post);
 
-        console.log(user);
-        console.log(post)
+         renderHtml(user, post);
         } catch(err){
             console.log(err);
         }
